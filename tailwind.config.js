@@ -9,6 +9,7 @@ module.exports = {
         purple:{
           dark: '#44194A', 
           medium: '#B7ADB8',
+          hover: '#5e2666',
         },
         grey:{
           light:'#EFEFEF', 
