@@ -1,70 +1,46 @@
-# Getting Started with Create React App
+# 🧠 RDLab: On-Premise RAG System for the Oil & Gas Industry
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+> An AI-powered Retrieval-Augmented Generation (RAG) web application designed to streamline research, document retrieval, and knowledge discovery in the energy sector.
 
-## Available Scripts
+---
 
-In the project directory, you can run:
+## 📌 Overview
 
-### `npm start`
+**RDLab** is a secure, on-premise research assistant platform that leverages **Graph-based RAG (GraphRAG)** and advanced NLP to help professionals in the **Oil & Gas industry** efficiently access, analyze, and summarize large volumes of technical documents, standards, and reports.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+---
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## ⚙️ Key Features
 
-### `npm test`
+- 🔐 **On-Premise Deployment** for full data privacy and regulatory compliance
+- 📁 **Secure Document Uploads & Indexing** (PDF, DOCX, CSV, etc.)
+- 🔎 **Semantic Search with GraphRAG (Neo4j + NLP)** for contextual results
+- 💬 **Interactive Chat Interface** with context-aware RAG responses
+- 📊 **Admin Dashboard** for system usage, document management & analytics
+- 📌 **Bookmarking & Exporting** results (PDF, summaries)
+- 📈 **AI-Generated Reports & Future Trend Predictions**
+- 👥 **Role-Based Access Control (RBAC)** for Admins and Users
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+---
 
-### `npm run build`
+## 🧱 Tech Stack
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+| Layer            | Tech Used                      |
+|------------------|--------------------------------|
+| **Frontend**     | React.js + Tailwind CSS        |
+| **Backend**      | FastAPI (Python)               |
+| **Search Engine**| Elasticsearch                  |
+| **Database**     | PostgreSQL                     |
+| **Graph Storage**| Neo4j                          |
+| **NLP Models**   | DeepSeek, LangChain            |
+| **Security**     | JWT, RBAC, On-Premise Encryption |
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+---
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## 🚀 Getting Started
 
-### `npm run eject`
+### 1. Clone the Repo
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+```bash
+git clone https://github.com/YOUR_USERNAME/rdlab.git
+cd rdlab
