@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import userImage from '../assets/images/user.png';
+import { ReactComponent as Marker } from "../assets/icons/Marker.svg";
 import {
   FiMenu, FiMessageCircle, FiFileText, FiBarChart2,
   FiUsers, FiSettings, FiLogOut, FiMoon, FiSun
@@ -10,8 +12,13 @@ export default function Sidebar() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [darkMode, setDarkMode] = useState(false);
   const [showChatHistory, setShowChatHistory] = useState(false);
+  const navigate = useNavigate();
 
-  const menuItems = [
+  // Define user role: "admin", "researcher", or "user"
+  const userRole = 'admin'; // Change this dynamically later
+
+  // Define full menu
+  const fullMenu = [
     { icon: <FiMessageCircle />, label: 'Chats' },
     { icon: <FiFileText />, label: 'Documents' },
     { icon: <FiBarChart2 />, label: 'Dashboard' },
@@ -19,6 +26,14 @@ export default function Sidebar() {
     { icon: <FiSettings />, label: 'Settings' },
     { icon: <FiLogOut />, label: 'Logout' }
   ];
+
+  // Filter menu based on role
+  const menuItems = fullMenu.filter(item => {
+    if (userRole === 'admin') return true;
+    if (userRole === 'researcher') return !['Dashboard', 'Users'].includes(item.label);
+    if (userRole === 'user') return ['Chats', 'Settings', 'Logout'].includes(item.label);
+    return false;
+  });
 
   return (
     <div className="flex">
@@ -48,11 +63,19 @@ export default function Sidebar() {
           {menuItems.map((item, index) => (
             <div
               key={index}
-              onClick={() => setActiveIndex(index)}
+              onClick={() => {
+                setActiveIndex(index);
+                if (item.label === 'Chats') navigate('/chat');
+                else if (item.label === 'Documents') navigate('/documents');
+                else if (item.label === 'Dashboard') navigate('/dashboard');
+                else if (item.label === 'Users') navigate('/users');
+                else if (item.label === 'Settings') navigate('/settings');
+                else if (item.label === 'Logout') navigate('/logout');
+              }}
               className="relative group cursor-pointer"
             >
               {activeIndex === index && (
-                <div className="absolute -left-2 top-1/2 -translate-y-1/2 w-3 h-8 bg-purple-dark rounded-r-md" />
+                <Marker className="w-8 h-8 absolute -left-5 "/>
               )}
               <div
                 className={`p-2 rounded-lg transition-all duration-300 ${
@@ -68,37 +91,37 @@ export default function Sidebar() {
         </div>
 
         {/* Bottom Section - Dark Mode Toggle */}
-        <div className="mb-8 flex flex-col items-center gap-2">
+        <div className="mb-12 flex flex-col items-center gap-2 ">
           <button
             onClick={() => setDarkMode(!darkMode)}
-            className="p-2 rounded-lg flex flex-col items-center justify-center transition-all duration-300"
+            className="p-2 m-2 rounded-lg bg-grey-light w-[50%] flex flex-col items-center justify-center transition-all duration-300"
           >
             {/* Sun Icon */}
             <div
-              className={`p-2 rounded-lg ${!darkMode ? 'bg-purple-dark text-white' : 'bg-grey-light text-purple-dark'} transition-all duration-300`}
+              className={`p-1 rounded-lg ${!darkMode ? 'bg-purple-dark text-white' : 'bg-grey-light text-purple-dark'} transition-all duration-300`}
             >
-              <FiSun />
+              <FiSun className="w-3 h-3"/>
             </div>
 
             {/* Moon Icon */}
             <div
-              className={`p-2 rounded-lg ${darkMode ? 'bg-purple-dark text-white' : 'bg-grey-light text-purple-dark'} transition-all duration-300`}
+              className={`p-1 rounded-lg ${darkMode ? 'bg-purple-dark text-white' : 'bg-grey-light text-purple-dark'} transition-all duration-300`}
             >
-              <FiMoon />
+              <FiMoon className="w-3 h-3"/>
             </div>
           </button>
         </div>
       </div>
+
       {/* Main Content Area including ChatSidebar */}
       <div className="ml-[15%] flex-grow">
-          {/* ChatSidebar rendered to the right of the fixed sidebar */}
-          {showChatHistory && (
-            <ChatSidebar
-              isOpen={showChatHistory}
-              onClose={() => setShowChatHistory(false)}
-            />
-          )}
-        </div>
+        {showChatHistory && (
+          <ChatSidebar
+            isOpen={showChatHistory}
+            onClose={() => setShowChatHistory(false)}
+          />
+        )}
+      </div>
     </div>
   );
 }

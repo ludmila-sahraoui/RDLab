@@ -80,7 +80,7 @@ const SignupPage = () => {
 
         {/* Sign Up Button */}
         <div className="mt-6">
-          <Link to="/welcome">
+          <Link to="/chat">
           <BtnStyle1 label="Sign Up" onClick={() => console.log('Sign Up Data', formData)} />
           </Link>
         </div>

@@ -32,10 +32,10 @@ const LoginPage = () => {
 
           <div className="text-center">
             <p className="text-[28px] md:text-[32px] font-semibold">Welcome!</p>
-            <p className="text-sm md:text-base text-black mt-1">Log into your account</p>
+            <p className="text-sm md:text-base text-black ">Log into your account</p>
           </div>
 
-          <div className="w-full max-w-sm space-y-6">
+          <div className="w-full max-w-sm space-y-4">
             <InputField
               label="Enter Your Email"
               hint="Email..."
@@ -52,10 +52,15 @@ const LoginPage = () => {
             />
           </div>
 
-          <div className="w-full max-w-sm text-right">
+          <div className="w-full max-w-sm text-right -mt-2">
             <a href="#" className="text-xs text-purple-medium">
               Forgot Password?
             </a>
+          </div>
+          <div className="right-4">
+            <Link to="/chat">
+                <BtnStyle1 label="Log In" onClick={() => console.log('Logging in with', email, password)} />
+            </Link>
           </div>
 
           <div className="w-2/3 ">
@@ -64,13 +69,8 @@ const LoginPage = () => {
               <span>Don't Have An Account?</span>
               <Link to="/signup" className="text-purple-dark font-semibold hover:underline"> Sign Up </Link>
             </div>
-          </div>
+          </div>   
 
-          <div className="absolute bottom-8 right-4">
-            <Link to="/welcome">
-                <BtnStyle1 label="Log In" onClick={() => console.log('Logging in with', email, password)} />
-            </Link>
-          </div>
         </div>
       </div>
 

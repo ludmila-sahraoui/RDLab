@@ -10,7 +10,7 @@
     "axios": "^1.8.4",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
-    "framer-motion": "^12.7.2",
+    "framer-motion": "^12.7.5",
     "lucide-react": "^0.488.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
