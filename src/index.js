@@ -8,13 +8,13 @@ import { ChatProvider } from './contexts/ChatContext';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <React.StrictMode>
+
     <BrowserRouter> {/* ⬅️ Wrap the App */}
     <ChatProvider>
       <App />
     </ChatProvider>
     </BrowserRouter>
-  </React.StrictMode>
+
 );
 
 reportWebVitals();

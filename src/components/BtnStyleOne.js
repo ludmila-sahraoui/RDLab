@@ -5,7 +5,7 @@ const BtnStyle1 = ({ label, onClick }) => {
       onClick={onClick}
     >
       {label}
-    </button>
+    </button> 
   );
 };
 

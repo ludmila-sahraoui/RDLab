@@ -84,7 +84,7 @@ export default function ChatSidebar({ isOpen, onClose }) {
   if (!isOpen) return null;
 
   return (
-    <aside className="w-full flex-shrink-0 border-r h-full flex flex-col bg-background">
+    <aside className="max-w-full flex-shrink-0 border-r h-full flex flex-col bg-background">
       <div className="sticky top-0 z-10 bg-white pb-2">
         <div className="flex items-center justify-between p-4 ">
           <h2 className="text-lg font-semibold">My Chats</h2>

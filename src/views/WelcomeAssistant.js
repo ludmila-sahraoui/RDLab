@@ -2,6 +2,7 @@ import React from 'react';
 import { useChatContext } from '../contexts/ChatContext'; 
 import { FiSend } from 'react-icons/fi';
 import logo from '../assets/images/logoRDLab.svg';
+import { useEffect } from 'react';
 
 const WelcomeAssistant = () => {
   const {
@@ -10,8 +11,11 @@ const WelcomeAssistant = () => {
     handleSendMessage,
     setUserInput,
     userInput,
+    chats
   } = useChatContext();
-  
+  useEffect(()=>{
+    
+  }, [chats])
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-white font-sans gap-7">
       <img src={logo} alt="RDLab Logo" className="w-[6%] h-auto" />

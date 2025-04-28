@@ -127,6 +127,7 @@ export const ChatProvider = ({ children }) => {
 
   const handleSendMessage = async (userInput, chatId = currentChatId) => {
     const chat = chats.find((c) => c.id === chatId);
+    console.log(chats)
     if (!userInput.trim() || !chat) return;
     console.log(userInput)
     const timestamp = new Date().toLocaleString();
@@ -189,7 +190,8 @@ export const ChatProvider = ({ children }) => {
         userInput,
         setUserInput,
         handleEditMessage,
-        handleRegenerate
+        handleRegenerate,
+        chats
       }}
     >
       {children}

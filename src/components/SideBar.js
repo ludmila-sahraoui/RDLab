@@ -4,9 +4,9 @@ import userImage from '../assets/images/user.png';
 import { ReactComponent as Marker } from "../assets/icons/Marker.svg";
 import {
   FiMenu, FiMessageCircle, FiFileText, FiBarChart2,
-  FiUsers, FiSettings, FiLogOut, FiMoon, FiSun
+  FiUsers, FiSettings, FiLogOut, FiMoon, FiSun, FiShield
 } from 'react-icons/fi';
-import ChatSidebar from './ChatHistory'; 
+import ChatSidebar from './ChatHistory';
 
 export default function Sidebar() {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -17,20 +17,21 @@ export default function Sidebar() {
   // Define user role: "admin", "researcher", or "user"
   const userRole = 'admin'; // Change this dynamically later
 
-  // Define full menu
+  // Define full menu with Roles page only for "admin"
   const fullMenu = [
     { icon: <FiMessageCircle />, label: 'Chats' },
     { icon: <FiFileText />, label: 'Documents' },
     { icon: <FiBarChart2 />, label: 'Dashboard' },
     { icon: <FiUsers />, label: 'Users' },
+    { icon: <FiShield />, label: 'Roles' },
     { icon: <FiSettings />, label: 'Settings' },
-    { icon: <FiLogOut />, label: 'Logout' }
+    { icon: <FiLogOut />, label: 'Logout' },
   ];
 
   // Filter menu based on role
   const menuItems = fullMenu.filter(item => {
     if (userRole === 'admin') return true;
-    if (userRole === 'researcher') return !['Dashboard', 'Users'].includes(item.label);
+    if (userRole === 'researcher') return !['Dashboard', 'Users', 'Roles'].includes(item.label);
     if (userRole === 'user') return ['Chats', 'Settings', 'Logout'].includes(item.label);
     return false;
   });
@@ -44,7 +45,7 @@ export default function Sidebar() {
         <div className="flex flex-col items-center gap-6 mt-4 mb-16">
           <button
             className={`p-2 hover:bg-muted bg-grey-light rounded-md ${
-              showChatHistory ? 'invisible' : ''
+              showChatHistory || activeIndex !== 0 ? 'invisible' : ''
             }`}
             onClick={() => setShowChatHistory(true)}
           >
@@ -71,6 +72,7 @@ export default function Sidebar() {
                 else if (item.label === 'Users') navigate('/users');
                 else if (item.label === 'Settings') navigate('/settings');
                 else if (item.label === 'Logout') navigate('/logout');
+                else if (item.label === 'Roles') navigate('/roles');
               }}
               className="relative group cursor-pointer"
             >
@@ -114,7 +116,7 @@ export default function Sidebar() {
       </div>
 
       {/* Main Content Area including ChatSidebar */}
-      <div className="ml-[15%] flex-grow">
+      <div className="ml-[15%] max-w-[25vw] flex-grow">
         {showChatHistory && (
           <ChatSidebar
             isOpen={showChatHistory}
