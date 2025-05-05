@@ -12,6 +12,7 @@ import { useChatContext } from './contexts/ChatContext';
 import ManageUsersPage from './views/UsersPage';
 import ManageRolesPage from './views/RolesPage';
 import { useState } from 'react';
+import FileManagementScreen from './views/FileManagementPage';
 
 function App() {
   const {
@@ -53,7 +54,17 @@ function App() {
               </div>
             }
           />
-
+          <Route
+            path="/documents"
+            element={
+              <div className="flex w-full h-screen overflow-hidden">
+                <Sidebar />
+                <div className="main-content flex-1">
+                  <FileManagementScreen />
+                </div>
+              </div>
+            }
+          />
           <Route
             path="/chat"
             element={

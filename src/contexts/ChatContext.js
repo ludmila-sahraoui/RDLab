@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 import axios from "axios";
 
 const ChatContext = createContext();
@@ -22,13 +22,25 @@ export const ChatProvider = ({ children }) => {
       isSaved: false,
       messages: [],
     };
-    setChats((prev) => [newChat, ...prev]);
-    setCurrentChatId(newChat.id);
-    setHasChatStarted(true);
-    return newChat.id;
+
+    // Use functional update to ensure we're working with the latest state
+    setChats(prevChats => {
+      const updatedChats = [...prevChats, newChat];
+      // Now that we're in the setChats callback, we can safely update other states
+      setCurrentChatId(newChat.id);
+      return updatedChats;
+    });
+    return newChat;
   };
 
-  const currentChat = chats.find((chat) => chat.id === currentChatId);
+  useEffect(() => {
+    if (currentChatId && !hasChatStarted && chats.length > 0) {
+      setHasChatStarted(true);
+    }
+  }, [currentChatId, hasChatStarted, chats]);
+
+
+  const currentChat = chats.find((chat) => chat.id === currentChatId) || null;
 
   const toggleSaveChat = (chatId) => {
     setChats((prev) =>
@@ -127,7 +139,6 @@ export const ChatProvider = ({ children }) => {
 
   const handleSendMessage = async (userInput, chatId = currentChatId) => {
     const chat = chats.find((c) => c.id === chatId);
-    console.log(chats)
     if (!userInput.trim() || !chat) return;
     console.log(userInput)
     const timestamp = new Date().toLocaleString();
