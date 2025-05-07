@@ -21,7 +21,7 @@ def get_all_users(db: Session = Depends(get_db), current_admin: models.User = De
     """
     Endpoint for an admin to retrieve all users.
     """
-    users = db.query(models.User).all()
+    users = db.query(models.User).filter(models.User.is_admin == False, models.User.is_deleted == False).all()
     return {"users": users}
 
 @router.put("/users/{userID}/role")

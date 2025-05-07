@@ -4,7 +4,7 @@ from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
 import os
 
-load_dotenv(dotenv_path="/Users/mac/Desktop/rdlab/backend/.env")
+load_dotenv(dotenv_path="/Users/mac/Desktop/rdlab/backend/app/.env")
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 

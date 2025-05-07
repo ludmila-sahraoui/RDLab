@@ -174,7 +174,7 @@ export const ChatProvider = ({ children }) => {
 
       updateChatTitleAndPreview(
         chat.id,
-        suggestedTitle.slice(0, 30) + "...",
+        suggestedTitle.slice(0, 20) + "...",
         reply.slice(0, 60) + "..."
       );
     } catch {

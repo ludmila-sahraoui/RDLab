@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { Pencil, XCircle, Ban, CheckCircle } from "lucide-react";
 
 const roleColors = {
@@ -13,15 +14,32 @@ const UserTable = () => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [editingRoleId, setEditingRoleId] = useState(null);
-  const [users, setUsers] = useState([
-    { id: 1, name: "Olivia Bennett", email: "olivia.bennett@petrotechmail.com", role: "Engineer", status: "Logged In", avatar: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png" },
-    { id: 2, name: "Ayesha Khan", email: "ayesha.k@drillstream.net", role: "Researcher", status: "Logged In", avatar: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png" },
-    { id: 3, name: "Marcus Feldman", email: "mfeldman89@geoworks.io", role: "Intern", status: "Not Logged In", avatar: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png" },
-    { id: 4, name: "Lucas McAllister", email: "lucas.mcallister@gitrack.org", role: "Intern", status: "Not Logged In", avatar: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png" },
-    { id: 5, name: "Elena Zhang", email: "e.zhang@energygrid.tech", role: "Researcher", status: "Logged In", avatar: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png" },
-    { id: 6, name: "Rafael Sousa", email: "rafael.s@pipeline360.co", role: "Engineer", status: "Not Logged In", avatar: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png" },
-  ]);
-  const [deactivatedUsers, setDeactivatedUsers] = useState([]); // New state to track deactivated users
+  const [users, setUsers] = useState([]);
+  const [deactivatedUsers, setDeactivatedUsers] = useState([]);
+
+  // 🟡 Fetch users from FastAPI
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const res = await axios.get('http://localhost:8000/admin/users/', {
+          withCredentials: true 
+        });
+        const formattedUsers = res.data.users.map((u) => ({
+          id: u.userID,
+          name: u.name,
+          email: u.email,
+          role: u.role,
+          status: "Not Logged In", // You can replace with actual login status if tracked
+          avatar: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
+        }));
+        setUsers(formattedUsers);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      }
+    };
+
+    fetchUsers();
+  }, []);
 
   const handleRoleChange = (e, userId) => {
     const newRole = e.target.value;
@@ -38,14 +56,12 @@ const UserTable = () => {
 
   const handleDelete = (userId) => {
     setUsers((prev) => prev.filter((user) => user.id !== userId));
-    setDeactivatedUsers((prev) => prev.filter((id) => id !== userId)); // Clean up
+    setDeactivatedUsers((prev) => prev.filter((id) => id !== userId));
   };
 
   const handleToggleDeactivate = (userId) => {
     setDeactivatedUsers((prev) =>
-      prev.includes(userId)
-        ? prev.filter((id) => id !== userId) // Reactivate
-        : [...prev, userId] // Deactivate
+      prev.includes(userId) ? prev.filter((id) => id !== userId) : [...prev, userId]
     );
   };
 
@@ -70,21 +86,12 @@ const UserTable = () => {
               key={row.id}
               className={`grid grid-cols-[50px_1fr_2fr_1fr_1fr_100px] items-center h-16 border-b border-gray-200 px-4 transition ${isDeactivated ? "opacity-60" : ""}`}
             >
-              {/* Avatar */}
               <div className="flex items-center">
                 <img src={row.avatar} alt={row.name} className="w-8 h-8 rounded-full" />
               </div>
-
-              {/* Name */}
               <div className="flex items-center text-sm text-gray-700">{row.name}</div>
-
-              {/* Email */}
               <div className="flex items-center text-sm text-gray-700">{row.email}</div>
-
-              {/* Status */}
               <div className="flex items-center text-sm text-gray-700">{row.status}</div>
-
-              {/* Role */}
               <div className="flex items-center text-sm text-gray-700">
                 {editingRoleId === row.id ? (
                   <select
@@ -98,15 +105,13 @@ const UserTable = () => {
                   </select>
                 ) : (
                   <div
-                    onClick={() => editingRoleId === row.id ? setEditingRoleId(null) : setEditingRoleId(row.id)}
+                    onClick={() => setEditingRoleId(row.id)}
                     className={`px-2 py-1 rounded-full text-xs cursor-pointer ${roleColors[row.role]}`}
                   >
                     {row.role}
                   </div>
                 )}
               </div>
-
-              {/* Actions */}
               <div className="flex items-center gap-2">
                 <Pencil
                   className="text-purple-dark cursor-pointer hover:text-purple-medium"

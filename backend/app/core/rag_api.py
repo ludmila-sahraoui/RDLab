@@ -103,22 +103,18 @@ def ingest_file(file_path: str, category: str):
 
 
 # === deepseek API Key ===
-DeepSeek_API_KEY = "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"
+DeepSeek_API_KEY = "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"
 DeepSeek_API_URL="https://openrouter.ai/api/v1"
 
 # === Prompt Template ===
 def get_custom_prompt() -> PromptTemplate:
     return PromptTemplate.from_template("""
-        You are a professional assistant.
-        Use only the provided context to answer the question.
+        You are an expert assistant restricted to answer **only** based on the provided context.
 
-        If the context does not contain enough information, respond with:
+        If no relevant information exists, then say:
         "I'm sorry, I don't have enough information to answer that."
 
-        Format your answer for technical professionals:
-        - Use clear sections with bullet points or subheadings.
-        - Include numeric values, classifications, or mechanisms where relevant.
-        - Maintain professional tone, technical accuracy, and clarity.
+        Please give the answer in an organized format.
         
         ------------------
         Context:
@@ -129,6 +125,7 @@ def get_custom_prompt() -> PromptTemplate:
 
         Expert Answer:
     """)
+
 
 # === Call DeepSeek via OpenRouter ===
 def query_deepseek_model(full_prompt: str, api_key: str, api_url: str) -> str:
@@ -143,7 +140,7 @@ def query_deepseek_model(full_prompt: str, api_key: str, api_url: str) -> str:
         "messages": [
             {
                 "role": "system",
-                "content": "You are a helpful assistant restricted to the given context."
+                "content": "You are a helpful assistant restricted to the given context only, don't answer from your knowledge , just from the given context please."
             },
             {
                 "role": "user",
