@@ -1,79 +1,128 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import userImage from '../assets/images/user.png';
+import { ReactComponent as Marker } from "../assets/icons/Marker.svg";
 import {
   FiMenu, FiMessageCircle, FiFileText, FiBarChart2,
-  FiUsers, FiSettings, FiLogOut, FiMoon, FiSun
+  FiUsers, FiSettings, FiLogOut, FiMoon, FiSun, FiShield
 } from 'react-icons/fi';
+import ChatSidebar from './ChatHistory';
 
 export default function Sidebar() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [darkMode, setDarkMode] = useState(false);
+  const [showChatHistory, setShowChatHistory] = useState(false);
+  const navigate = useNavigate();
 
-  const menuItems = [
+  // Define user role: "admin", "researcher", or "user"
+  const userRole = 'admin'; // Change this dynamically later
+
+  // Define full menu with Roles page only for "admin"
+  const fullMenu = [
     { icon: <FiMessageCircle />, label: 'Chats' },
     { icon: <FiFileText />, label: 'Documents' },
     { icon: <FiBarChart2 />, label: 'Dashboard' },
     { icon: <FiUsers />, label: 'Users' },
+    { icon: <FiShield />, label: 'Roles' },
     { icon: <FiSettings />, label: 'Settings' },
-    { icon: <FiLogOut />, label: 'Logout' }
+    { icon: <FiLogOut />, label: 'Logout' },
   ];
 
+  // Filter menu based on role
+  const menuItems = fullMenu.filter(item => {
+    if (userRole === 'admin') return true;
+    if (userRole === 'researcher') return !['Dashboard', 'Users', 'Roles'].includes(item.label);
+    if (userRole === 'user') return ['Chats', 'Settings', 'Logout'].includes(item.label);
+    return false;
+  });
+
   return (
-    <div className="w-[4%] shadow-md bg-white min-h-screen fixed left-0 top-0 space-y-2">
+    <div className="flex">
+      {/* Sidebar */}
+      <div className="w-[4%] shadow-md bg-white min-h-screen fixed left-0 top-0 space-y-2 z-50 flex flex-col justify-between">
 
-      {/* Top Section */}
-      <div className="flex flex-col items-center gap-6 mt-4 mb-16">
-        <FiMenu className="text-xl text-purple-dark bg-grey-light rounded-r-md" />
-        <img
-          src={userImage}
-          alt="User"
-          className="w-9 h-9 rounded-full object-cover"
-        />
-      </div>
-
-      {/* Middle Section - Icons */}
-      <div className="flex flex-col items-center gap-6 mt-10 flex-grow">
-        {menuItems.map((item, index) => (
-          <div
-            key={index}
-            onClick={() => setActiveIndex(index)}
-            className="relative group cursor-pointer"
+        {/* Top Section */}
+        <div className="flex flex-col items-center gap-6 mt-4 mb-16">
+          <button
+            className={`p-2 hover:bg-muted bg-grey-light rounded-md ${
+              showChatHistory || activeIndex !== 0 ? 'invisible' : ''
+            }`}
+            onClick={() => setShowChatHistory(true)}
           >
-            {/* Purple Active Bar */}
-            {activeIndex === index && (
-              <div className="absolute -left-2 top-1/2 -translate-y-1/2 w-3 h-8 bg-purple-dark rounded-r-md" />
-            )}
+            <FiMenu className="text-xl text-purple-dark bg-grey-light rounded-r-md" />
+          </button>
+
+          <img
+            src={userImage}
+            alt="User"
+            className="w-9 h-9 rounded-full object-cover"
+          />
+        </div>
+
+        {/* Middle Section - Icons */}
+        <div className="flex flex-col items-center gap-6 mt-10 flex-grow">
+          {menuItems.map((item, index) => (
             <div
-              className={`p-2 rounded-lg transition-all duration-300 ${
-                activeIndex === index ? 'bg-purple-dark text-white' : 'bg-grey-light text-purple-dark'
-              }`}
+              key={index}
+              onClick={() => {
+                setActiveIndex(index);
+                if (item.label === 'Chats') navigate('/chat');
+                else if (item.label === 'Documents') navigate('/documents');
+                else if (item.label === 'Dashboard') navigate('/dashboard');
+                else if (item.label === 'Users') navigate('/users');
+                else if (item.label === 'Settings') navigate('/settings');
+                else if (item.label === 'Logout') navigate('/logout');
+                else if (item.label === 'Roles') navigate('/roles');
+              }}
+              className="relative group cursor-pointer"
             >
-              {item.icon}
+              {activeIndex === index && (
+                <Marker className="w-8 h-8 absolute -left-5 "/>
+              )}
+              <div
+                className={`p-2 rounded-lg transition-all duration-300 ${
+                  activeIndex === index
+                    ? 'bg-purple-dark text-white'
+                    : 'bg-grey-light text-purple-dark'
+                }`}
+              >
+                {item.icon}
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
+
+        {/* Bottom Section - Dark Mode Toggle */}
+        <div className="mb-12 flex flex-col items-center gap-2 ">
+          <button
+            onClick={() => setDarkMode(!darkMode)}
+            className="p-2 m-2 rounded-lg bg-grey-light w-[50%] flex flex-col items-center justify-center transition-all duration-300"
+          >
+            {/* Sun Icon */}
+            <div
+              className={`p-1 rounded-lg ${!darkMode ? 'bg-purple-dark text-white' : 'bg-grey-light text-purple-dark'} transition-all duration-300`}
+            >
+              <FiSun className="w-3 h-3"/>
+            </div>
+
+            {/* Moon Icon */}
+            <div
+              className={`p-1 rounded-lg ${darkMode ? 'bg-purple-dark text-white' : 'bg-grey-light text-purple-dark'} transition-all duration-300`}
+            >
+              <FiMoon className="w-3 h-3"/>
+            </div>
+          </button>
+        </div>
       </div>
 
-     {/* Bottom Section - Dark Mode Toggle */}
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-2">
-        <button
-          onClick={() => setDarkMode(!darkMode)}
-          className="p-2 rounded-lg flex flex-col items-center justify-center transition-all duration-300"
-        >
-          {/* Sun Icon */}
-          <div
-            className={`p-2 rounded-lg ${!darkMode ? 'bg-purple-dark text-white' : 'bg-grey-light text-purple-dark'} transition-all duration-300`}
-          >
-            <FiSun />
-          </div>
-
-          {/* Moon Icon */}
-          <div
-            className={`p-2 rounded-lg ${darkMode ? 'bg-purple-dark text-white' : 'bg-grey-light text-purple-dark'} transition-all duration-300`}
-          >
-            <FiMoon />
-          </div>
-        </button>
+      {/* Main Content Area including ChatSidebar */}
+      <div className="ml-[15%] max-w-[25vw] flex-grow">
+        {showChatHistory && (
+          <ChatSidebar
+            isOpen={showChatHistory}
+            onClose={() => setShowChatHistory(false)}
+          />
+        )}
       </div>
     </div>
   );
