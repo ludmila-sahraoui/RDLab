@@ -7,14 +7,17 @@ from langchain.embeddings import HuggingFaceEmbeddings
 from langchain.vectorstores import FAISS
 from langchain.docstore.document import Document
 from langchain.prompts import PromptTemplate
+from dotenv import load_dotenv
 
 from docling.document_converter import DocumentConverter
 from typing import List
 from pathlib import Path
 import requests
 
+load_dotenv(dotenv_path="/Users/mac/Desktop/rdlab/backend/app/.env")
 
-
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")  
+GEMINI_API_URL = os.getenv("GEMINI_API_URL")  
 BASE_DIR = "dataset"
 VECTOR_DB_DIR = "vector_dbs"
 
@@ -102,19 +105,15 @@ def ingest_file(file_path: str, category: str):
     print(f"✅ {file_path} ingested and added to category '{category}'.")
 
 
-# === deepseek API Key ===
-DeepSeek_API_KEY = "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"
-DeepSeek_API_URL="https://openrouter.ai/api/v1"
-
 # === Prompt Template ===
 def get_custom_prompt() -> PromptTemplate:
     return PromptTemplate.from_template("""
-        You are an expert assistant restricted to answer **only** based on the provided context.
-
-        If no relevant information exists, then say:
-        "I'm sorry, I don't have enough information to answer that."
-
-        Please give the answer in an organized format.
+        You are an expert assistant that STRICTLY answers ONLY based on the provided context.
+        Follow these rules:
+        1. If the answer cannot be found in the context, say: "I don't have enough information from my knowledge base to answer that."
+        2. Do NOT use any external knowledge or make assumptions.
+        3. If the question is unrelated to the context, say: "This question is outside my knowledge scope."
+        4. Keep answers concise and directly supported by the context.
         
         ------------------
         Context:
@@ -126,45 +125,70 @@ def get_custom_prompt() -> PromptTemplate:
         Expert Answer:
     """)
 
-
-# === Call DeepSeek via OpenRouter ===
-def query_deepseek_model(full_prompt: str, api_key: str, api_url: str) -> str:
-    print("📡 Sending request to DeepSeek via OpenRouter...")
+# === Call Gemini API directly ===
+def query_gemini_model(context: str, question: str, api_key: str) -> str: 
+    print("📡 Sending request to Gemini 2.0 Flash...")
+    
     headers = {
-        "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json"
     }
 
+    # More strict instruction template
+    instruction = """You are an expert assistant that STRICTLY answers ONLY based on the provided context.
+    Follow these rules:
+    1. If the answer cannot be found word-for-word or directly inferred from the context, say: "I don't have enough information from my knowledge base to answer that."
+    2. Do NOT use any external knowledge or make assumptions beyond what's in the context.
+    3. If the question is unrelated to the context, say: "This question is outside my knowledge scope."
+    4. Keep answers concise and directly supported by the context."""
+
     data = {
-        "model": "deepseek/deepseek-prover-v2:free",  
-        "messages": [
+        "contents": [
             {
-                "role": "system",
-                "content": "You are a helpful assistant restricted to the given context only, don't answer from your knowledge , just from the given context please."
-            },
-            {
-                "role": "user",
-                "content": full_prompt
+                "parts": [
+                    {"text": f"Context: {context}\n\nQuestion: {question}"}
+                ],
+                "role": "user"
             }
-        ]
-    ,
-        "temperature": 0.2,
-        "max_tokens": 800,
-        
+        ],
+        "generationConfig": {
+            "temperature": 0.1,  # Lower temperature for more deterministic answers
+            "maxOutputTokens": 800
+        },
+        "systemInstruction": {
+            "parts": [
+                {"text": instruction}
+            ]
+        }
     }
 
-    response = requests.post(f"{api_url}/chat/completions", json=data, headers=headers)
+    try:
+        response = requests.post(
+            f"{GEMINI_API_URL}?key={api_key}",
+            headers=headers,
+            json=data,
+            timeout=30
+        )
 
-    if response.status_code != 200:
-        print(f"❌ DeepSeek API Error: {response.status_code} {response.text}")
-        raise Exception(f"DeepSeek API error: {response.status_code} {response.text}")
+        if response.status_code != 200:
+            print(f"❌ Gemini API Error: {response.status_code} {response.text}")
+            return "I'm sorry, I encountered an error processing your request."
 
-    result = response.json()
-    return result.get("choices", [{}])[0].get("message", {}).get("content", 
-           "I'm sorry, I don't have enough information to answer that.")
+        result = response.json()
+        if 'candidates' in result and len(result['candidates']) > 0:
+            answer = result['candidates'][0]['content']['parts'][0]['text']
+            # Additional check to ensure the answer isn't hallucinated
+            if "don't know" in answer.lower() or "not enough information" in answer.lower():
+                return "I don't have enough information from my knowledge base to answer that."
+            return answer
+        return "I don't have enough information from my knowledge base to answer that."
+
+    except Exception as e:
+        print(f"❌ Exception calling Gemini API: {str(e)}")
+        return "I'm sorry, I encountered an error processing your request."
+    
 
 # === Load Vectorstore and Create QA Function ===
-def create_qa_function(vectorstore_path: str, api_key: str, api_url: str):
+def create_qa_function(vectorstore_path: str, api_key: str):
     if not os.path.exists(vectorstore_path):
         raise FileNotFoundError(f"🚫 Vectorstore not found at path: {vectorstore_path}")
 
@@ -179,25 +203,28 @@ def create_qa_function(vectorstore_path: str, api_key: str, api_url: str):
 
     def qa_function(question: str):
         docs = retriever.get_relevant_documents(question)
+        if not docs:
+            return "I don't have enough information from my knowledge base to answer that."
+        
         context = "\n\n".join([doc.page_content for doc in docs])
-        full_prompt = prompt.format(context=context, question=question)
-        print(full_prompt)
-        return query_deepseek_model(full_prompt, api_key, api_url)
+        
+        # Additional check if the context is actually relevant
+        if not context.strip():
+            return "I don't have enough information from my knowledge base to answer that."
+            
+        return query_gemini_model(context, question, api_key)
 
     return qa_function
 
 # === Main Ask Function ===
-def ask_question(question: str, category: str, api_key: str, api_url: str) -> str:
+def ask_question(question: str, category: str, api_key: str) -> str:
     print(f"💬 Received question: '{question}'")
     vectorstore_path = f"./vector_dbs/{category}"
     abs_path = os.path.abspath(vectorstore_path)
 
     try:
-        qa_function = create_qa_function(abs_path, api_key, api_url)
-        print("🚀 Running QA function...")
+        qa_function = create_qa_function(abs_path, api_key) 
         answer = qa_function(question)
-        print("✅ Answer generated successfully.")
-        print(answer)
         return answer
     except Exception as e:
         return f"❌ Failed to answer question: {e}"
@@ -230,8 +257,7 @@ def ask_endpoint(request: AskRequest):
         answer = ask_question(
             request.question,
             request.category,
-            DeepSeek_API_KEY,
-            DeepSeek_API_URL
+            GEMINI_API_KEY,
         )
         return {"answer": answer}
     except Exception as e:

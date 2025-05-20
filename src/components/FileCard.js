@@ -3,13 +3,13 @@ import { imgConfig } from '../constants/gridIconConfig';
 import { useState } from "react";
 import DeletePopup from './DeletePopUp';
 
-export default function DocumentCard({ title = "Document Title", category = "Category", fileType = 'default', removeFile }) {
+export default function DocumentCard({ title = "Document Title", category = "Category", fileType = 'default',preview="", removeFile }) {
   const CategoryColors = {
     "Engineering": "bg-purple-100 text-purple-700",
-    "Researcher": "bg-green-100 text-green-700",
+    "Research": "bg-green-100 text-green-700",
     "Intern": "bg-yellow-100 text-yellow-700",
   };
-
+ 
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
 
@@ -19,7 +19,7 @@ export default function DocumentCard({ title = "Document Title", category = "Cat
       <div className="flex items-center justify-between w-full mb-3">
         <div className="flex items-center gap-2">
           <img
-            src={imgConfig[fileType] || imgConfig['default']}
+            src={imgConfig['pdf'] || imgConfig['default']}
             alt={fileType}
             className="w-5 h-5"
           />
@@ -65,7 +65,9 @@ export default function DocumentCard({ title = "Document Title", category = "Cat
 
       {/* Body */}
       <div className="bg-white/40 rounded-xl w-full h-40 flex mb-1 items-center justify-center">
-        <img src="https://via.placeholder.com/100x100" alt="Placeholder" className="object-contain h-24 w-24" />
+      <img src={`data:image/jpeg;base64,${preview}`}
+                  alt="Document thumbnail"
+                  className="min-w-full min-h-full object-cover" />
       </div>
 
       {/* Footer */}

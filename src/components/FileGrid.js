@@ -24,6 +24,7 @@ const FileGrid = ({ filesData, onFileChange }) => {
                     title={file.fileName}
                     fileType={file.type}
                     category={file.category}
+                    preview={file.preview}
                     removeFile={() => fileRemove(file)}
                 />
             ))}

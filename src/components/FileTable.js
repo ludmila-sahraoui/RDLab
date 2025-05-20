@@ -4,14 +4,7 @@ import { IoIosRemoveCircleOutline } from "react-icons/io";
 
 
 
-const FileTable = () => {
-    const dummyData = Array.from({ length: 20 }, () => ({
-        fileName: 'DrillingFluidsReferenceManual.pdf',
-        type: 'pdf',
-        size: '30MB',
-        date: '12/12/2025',
-        category: 'Engineering',
-    }));
+const FileTable = ({ filesData, onFileChange }) => {
 
     return (
         <div className="overflow-auto  custom-scrollbar w-full">
@@ -28,7 +21,7 @@ const FileTable = () => {
                     </div>
 
                     {/* Table Rows */}
-                    {dummyData.map((row, index) => (
+                    {filesData.map((row, index) => (
                         <div    
                             key={index}
                             className={`col-span-6 grid grid-cols-6 gap-0 h-14 items-center  border-b border-gray-200`}
@@ -36,12 +29,12 @@ const FileTable = () => {
                             <div className="flex items-center justify-center text-sm text-gray-700">{row.fileName}</div>
                             <div className="flex items-center justify-center text-sm text-gray-700">
                                 <img
-                                    src={imgConfig[row.type] || imgConfig['default']}
+                                    src={imgConfig['pdf'] || imgConfig['default']}
                                     alt={row.type}
                                     className="w-8 h-8"
                                 />
                             </div>
-                            <div className="flex items-center justify-center text-sm text-gray-700">{row.size}</div>
+                            <div className="flex items-center justify-center text-sm text-gray-700">30MB</div>
                             <div className="flex items-center justify-center text-sm text-gray-700">{row.date}</div>
                             <div className="flex items-center justify-center">
                                 <span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
