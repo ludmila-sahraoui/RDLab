@@ -60,13 +60,12 @@ def logout(response: Response):
     return {"message": "Logged out successfully"}
 
 
-
-
 def get_current_user_from_session(request: Request, db: Session = Depends(get_db)):
     """
     Retrieve the current user from the session cookie.
     """
     session_id = request.cookies.get("session_id")
+    print(session_id)
     if not session_id:
         raise HTTPException(status_code=401, detail="Not authenticated")
     
@@ -75,3 +74,9 @@ def get_current_user_from_session(request: Request, db: Session = Depends(get_db
         raise HTTPException(status_code=401, detail="Invalid session")
     
     return user
+
+@router.get("/role/")
+def get_user_role_from_session(
+    current_user: models.User = Depends(get_current_user_from_session)
+):
+    return {"role": current_user.role}

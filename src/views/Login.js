@@ -4,12 +4,39 @@ import loginImage from '../assets/images/bg.svg';
 import ClientLogo from '../components/ClientLogo';
 import InputField from '../components/InputField'; 
 import BtnStyle1 from '../components/BtnStyleOne.js';
-import { Link } from 'react-router-dom';
-
+import { Link, useNavigate } from 'react-router-dom';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const navigate = useNavigate();
+  const [error, setError] = useState('');
+
+  const handleLogin = async () => {
+    setError('');
+    try {
+      const response = await fetch('http://localhost:8000/user/login/', {
+        method: 'POST',
+        credentials: 'include', 
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('[+] Login success', data);
+        navigate('/chat');
+      } else {
+        const err = await response.json();
+        setError(err.detail || 'Login failed');
+      }
+    } catch (error) {
+      console.error('[!!] Login error:', error);
+      setError('An unexpected error occurred');
+    }
+  };
 
   return (
     <div className="fixed top-0 right-0 h-screen w-full bg-grey-light flex items-center justify-center px-4 py-10">
@@ -52,15 +79,19 @@ const LoginPage = () => {
             />
           </div>
 
+          {error && (
+            <div className="text-red-500 text-xs mt-1">
+              {error}
+            </div>
+          )}
+
           <div className="w-full max-w-sm text-right -mt-2">
             <a href="#" className="text-xs text-purple-medium">
               Forgot Password?
             </a>
           </div>
           <div className="right-4">
-            <Link to="/chat">
-                <BtnStyle1 label="Log In" onClick={() => console.log('Logging in with', email, password)} />
-            </Link>
+            <BtnStyle1 label="Log In" onClick={handleLogin} />
           </div>
 
           <div className="w-2/3 ">

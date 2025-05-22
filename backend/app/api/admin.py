@@ -1,6 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException
+import uuid
+from fastapi import APIRouter, Depends, Form, HTTPException
 from sqlalchemy.orm import Session
-from fastapi import File, UploadFile
+from fastapi import File, UploadFile, Form
+from pdf2image import convert_from_bytes
+from PIL import Image
 from fastapi.responses import JSONResponse
 
 from app.db.database import get_db
@@ -13,6 +16,10 @@ import os
 from datetime import datetime
 
 
+import io
+import base64
+
+
 router = APIRouter(prefix="/admin", tags=["Admin"])
 
 
@@ -21,7 +28,7 @@ def get_all_users(db: Session = Depends(get_db), current_admin: models.User = De
     """
     Endpoint for an admin to retrieve all users.
     """
-    users = db.query(models.User).all()
+    users = db.query(models.User).filter(models.User.is_admin == False, models.User.is_deleted == False).all()
     return {"users": users}
 
 @router.put("/users/{userID}/role")
@@ -65,49 +72,77 @@ def delete_user_account(userID: int, db: Session = Depends(get_db), current_admi
 
 
 
-UPLOAD_DIRECTORY = "/home/johndoe/Desktop/rag-backend/app/uploads/documents"
-
-
-
+UPLOAD_DIRECTORY = "/Users/mac/Desktop/rdlab/backend/app/uploads/documents"
 
 @router.post("/upload/")
-def upload_document(
+async def upload_document(
     file: UploadFile = File(...),
-    title: str = "Untitled", 
-    author: str = "Unknown", 
-    category: str = "General",
-    documentPreview: str = "",  
+    title: str = Form(...),
+    author: str = Form(...),
+    category: str = Form(...),
     db: Session = Depends(get_db),
     current_admin: models.User = Depends(get_current_admin)
 ):
-    """
-    Endpoint for an admin to upload a document and populate the Document table.
-    """
-    os.makedirs(UPLOAD_DIRECTORY, exist_ok=True)
+    try:
+        # Generate thumbnail preview
+        file_content = await file.read()
+        thumbnail_base64 = None
+        
+        if file.content_type == "application/pdf":
+            # Convert first page of PDF to thumbnail
+            images = convert_from_bytes(file_content, first_page=1, last_page=1)
+            if images:
+                img_byte_arr = io.BytesIO()
+                images[0].save(img_byte_arr, format='JPEG', quality=70)
+                thumbnail_base64 = base64.b64encode(img_byte_arr.getvalue()).decode('utf-8')
+        elif file.content_type.startswith('image/'):
+            # Create thumbnail for image files
+            image = Image.open(io.BytesIO(file_content))
+            image.thumbnail((300, 300))
+            img_byte_arr = io.BytesIO()
+            image.save(img_byte_arr, format='JPEG', quality=70)
+            thumbnail_base64 = base64.b64encode(img_byte_arr.getvalue()).decode('utf-8')
+        
+        # Save original file
+        file_ext = os.path.splitext(file.filename)[1]
+        unique_filename = f"{uuid.uuid4()}{file_ext}"
+        file_path = os.path.join(UPLOAD_DIRECTORY, unique_filename)
+        
+        with open(file_path, "wb") as f:
+            f.write(file_content)
 
-    file_path = os.path.join(UPLOAD_DIRECTORY, file.filename)
-    with open(file_path, "wb") as f:
-        f.write(file.file.read())
+        # Create document record
+        new_document = models.Document(
+            title=title,
+            author=author,
+            category=category,
+            uploadDate=datetime.utcnow(),
+            documentPreview=thumbnail_base64, 
+        )
+        
+        db.add(new_document)
+        db.commit()
+        db.refresh(new_document)
 
-    new_document = models.Document(
-        title=title,
-        author=author,
-        category=category,
-        uploadDate=datetime.utcnow(),
-        documentPreview=documentPreview 
-    )
-    db.add(new_document)
-    db.commit()
-    db.refresh(new_document)
+        return {
+            "success": True,
+            "message": "File uploaded successfully",
+            "document": {
+                "docID": new_document.docID,
+                "title": new_document.title,
+                "category": new_document.category,
+                "preview": "..."
+            }
+        }
 
-    return JSONResponse(
-        content={
-            "message": f"File '{file.filename}' uploaded successfully",
-            "file_path": file_path,
-            "document_id": new_document.docID
-        },
-        status_code=201,
-    )
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail=f"File upload failed: {str(e)}"
+        )
+    finally:
+        await file.close()
 
 
 @router.get("/files/")

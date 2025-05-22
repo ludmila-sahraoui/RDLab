@@ -80,16 +80,24 @@ export const ChatProvider = ({ children }) => {
   const getModelResponse = async (messages) => {
     try {
       const concatenatedMessage = messages.map((msg) => msg.text).join(".\n ");
-
-      const res = await axios.post("http://localhost:3001/api/chat", { message : concatenatedMessage });
-      
-      // Wait for both responses before returning
-      const titlePrompt = "Give a short 2 word title for this context:" + concatenatedMessage;
-      const suggestedTitleResponse = await axios.post("http://localhost:3001/api/chat", { message: titlePrompt });
-      
+  
+      // Call the FastAPI RAG endpoint
+      const res = await axios.post("http://localhost:8888/rag", {
+        question: concatenatedMessage,
+        category: "Drilling", 
+      });
+  
+      const titlePrompt = "Give a short 2 word title for this context: " + concatenatedMessage;
+  
+      const suggestedTitleResponse = await axios.post("http://localhost:8888/rag", {
+        question: titlePrompt,
+        category: "Drilling",
+      });
+      console.log("Final reply:", res.data.answer);
+      console.log("Suggested title:", suggestedTitleResponse.data.answer);
       return {
-        reply: res.data,
-        suggestedTitle: suggestedTitleResponse.data,
+        reply: res.data.answer,
+        suggestedTitle: suggestedTitleResponse.data.answer,
       };
     } catch (err) {
       console.error("API Error:", err);
@@ -99,6 +107,7 @@ export const ChatProvider = ({ children }) => {
       };
     }
   };
+  
   
   const handleEditMessage = async (msgId, newText) => {
     // Find the index of the message being edited
@@ -158,15 +167,15 @@ export const ChatProvider = ({ children }) => {
       const modelMsg = {
         id: Date.now(),
         sender: "model",
-        text: reply.reply, 
+        text: reply, 
         timestamp: new Date().toLocaleString(),
       };
       addMessageToChat(chat.id, modelMsg);
 
       updateChatTitleAndPreview(
         chat.id,
-        suggestedTitle.reply,
-        reply.reply.slice(0, 60) + "..."
+        suggestedTitle.slice(0, 20) + "...",
+        reply.slice(0, 60) + "..."
       );
     } catch {
       addMessageToChat(chat.id, {

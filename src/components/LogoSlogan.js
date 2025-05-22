@@ -1,7 +1,7 @@
 import logo from '../assets/images/logoRDLab.svg'; 
 const LogoSlogan = () => {
   return (
-    <div className="flex items-center gap-4">
+    <div className="flex items-center gap-4 scale-90 md:scale-75">
       <img
         src={logo}
         alt="RDLab Logo"
