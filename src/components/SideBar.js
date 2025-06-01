@@ -8,6 +8,7 @@ import {
 } from 'react-icons/fi';
 import ChatSidebar from './ChatHistory';
 
+
 export default function Sidebar() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [darkMode, setDarkMode] = useState(false);

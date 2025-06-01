@@ -11,9 +11,10 @@ import LandingScreen from './views/LandingScreen';
 import { useChatContext } from './contexts/ChatContext'; 
 import ManageUsersPage from './views/UsersPage';
 import ManageRolesPage from './views/RolesPage';
-import { useState } from 'react';
+import { useEffect } from 'react';
 import FileManagementScreen from './views/FileManagementPage';
-
+import { useState } from 'react';
+import SettingsPage from './views/Settings';
 function App() {
   const {
     showChatHistory,
@@ -86,6 +87,21 @@ function App() {
               </div>
             }
           />
+     <Route
+          path="/settings"
+          element={
+            <div className="flex w-full h-screen overflow-hidden">
+              <Sidebar />
+                    <div className="flex-1">
+
+                  <SettingsPage />
+
+            </div>
+            </div>
+          }
+        />
+
+
         </Routes>
   );
 }
