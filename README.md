@@ -11,7 +11,7 @@
 This system addresses the challenge of navigating large volumes of reports, publications, and scientific papers, significantly reducing the time and effort required to extract relevant knowledge.
 
 ---
-[📄 View Full Project Documentation (PDF)]([https://example.com/path/to/your/file.pdf](https://drive.google.com/file/d/10oM_fMq_FrEC8_zMM1Mj3as-412Q9383/view?usp=drive_link))
+### [📄 View Full Project Documentation (PDF)](https://drive.google.com/file/d/10oM_fMq_FrEC8_zMM1Mj3as-412Q9383/view?usp=drive_link)
 
 ## ⚙️ Key Features
 
