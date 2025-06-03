@@ -17,7 +17,7 @@ const UserTable = () => {
   const [users, setUsers] = useState([]);
   const [deactivatedUsers, setDeactivatedUsers] = useState([]);
 
-  // 🟡 Fetch users from FastAPI
+  // Fetch users from FastAPI
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -29,7 +29,7 @@ const UserTable = () => {
           name: u.name,
           email: u.email,
           role: u.role,
-          status: "Not Logged In", // You can replace with actual login status if tracked
+          status: "Not Logged In", 
           avatar: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
         }));
         setUsers(formattedUsers);

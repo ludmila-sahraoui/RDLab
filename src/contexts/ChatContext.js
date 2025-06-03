@@ -10,6 +10,7 @@ export const ChatProvider = ({ children }) => {
   const [currentChatId, setCurrentChatId] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [userInput, setUserInput] = useState("");
+  const [userRole, setUserRole] = useState('');
 
   const startChat = () => setHasChatStarted(true);
 
@@ -77,6 +78,31 @@ export const ChatProvider = ({ children }) => {
     );
   };
 
+  // Fetch user role
+    const fetchRole = async () => {
+      try {
+        const response = await axios.get('http://localhost:8000/user/role/');
+        return response.data.role;
+      } catch (error) {
+        console.error("Error fetching role:", error);
+        throw new Error("Failed to fetch role");
+      }
+    };
+  
+    // Use effect to get the user role
+    useEffect(() => {
+      const getRole = async () => {
+        try {
+          const role = await fetchRole();
+          setUserRole(role);
+        } catch (error) {
+          console.error("Could not fetch user role", error);
+        }
+      };
+  
+      getRole();
+    }, []);
+
   const getModelResponse = async (messages) => {
     try {
       const concatenatedMessage = messages.map((msg) => msg.text).join(".\n ");
@@ -84,14 +110,14 @@ export const ChatProvider = ({ children }) => {
       // Call the FastAPI RAG endpoint
       const res = await axios.post("http://localhost:8888/rag", {
         question: concatenatedMessage,
-        category: "Drilling", 
+        category: userRole == 'Intern'?"Security":"Drilling",  
       });
   
       const titlePrompt = "Give a short 2 word title for this context: " + concatenatedMessage;
   
       const suggestedTitleResponse = await axios.post("http://localhost:8888/rag", {
         question: titlePrompt,
-        category: "Drilling",
+        category: userRole == 'Intern'?"Security":"Drilling",
       });
       console.log("Final reply:", res.data.answer);
       console.log("Suggested title:", suggestedTitleResponse.data.answer);

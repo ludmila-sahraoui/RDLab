@@ -13,6 +13,7 @@ import ManageUsersPage from './views/UsersPage';
 import ManageRolesPage from './views/RolesPage';
 import Dashboard from './views/Dashboard'
 import FileManagementScreen from './views/FileManagementPage';
+import SettingsPage from './views/Settings';
 
 function App() {
   const {
@@ -29,9 +30,20 @@ function App() {
           <Route path="/" element={<SplashScreen />} />
           <Route path="/landing" element={<LandingScreen />} />
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/signup" element={<SignupPage />} />
+          <Route path="/signup" element={<SignupPage />} /> 
 
           {/* Pages with Sidebar Layout */}
+          <Route
+            path="/settings"
+            element={
+              <div className="flex w-full h-screen overflow-hidden">
+                <Sidebar />
+                <div className="main-content flex-1">
+                  <SettingsPage />
+                </div>
+              </div>
+            }
+          />
           <Route
             path="/users"
             element={
