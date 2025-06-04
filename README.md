@@ -6,41 +6,71 @@
 
 ## 📌 Overview
 
-**RDLab** is a secure, on-premise research assistant platform that leverages **Graph-based RAG (GraphRAG)** and advanced NLP to help professionals in the **Oil & Gas industry** efficiently access, analyze, and summarize large volumes of technical documents, standards, and reports.
+**RDLab** is a secure, on-premise research assistant platform tailored for the **Oil & Gas industry**. It leverages **RAG technology** to enable users to upload technical documents and ask domain-specific questions, receiving accurate and context-based answers.
+
+This system addresses the challenge of navigating large volumes of reports, publications, and scientific papers, significantly reducing the time and effort required to extract relevant knowledge.
 
 ---
+### [📄 View Full Project Documentation (PDF)](https://drive.google.com/file/d/10oM_fMq_FrEC8_zMM1Mj3as-412Q9383/view?usp=drive_link)
 
 ## ⚙️ Key Features
 
-- 🔐 **On-Premise Deployment** for full data privacy and regulatory compliance
-- 📁 **Secure Document Uploads & Indexing** (PDF, DOCX, CSV, etc.)
-- 🔎 **Semantic Search with GraphRAG (Neo4j + NLP)** for contextual results
-- 💬 **Interactive Chat Interface** with context-aware RAG responses
-- 📊 **Admin Dashboard** for system usage, document management & analytics
-- 📌 **Bookmarking & Exporting** results (PDF, summaries)
-- 📈 **AI-Generated Reports & Future Trend Predictions**
-- 👥 **Role-Based Access Control (RBAC)** for Admins and Users
+- 🔐 **On-Premise Deployment** for full data privacy and compliance  
+- 📁 **Secure Document Upload & Indexing** (PDF, DOCX, TXT)  
+- 🔎 **Semantic Search with RAG-based Retrieval**  
+- 💬 **Interactive Chat Interface** for contextual Q&A  
+- 📊 **Admin Dashboard** for document and usage management  
+- 📌 **Answer Export (PDF, summaries)**  
+- 👥 **Role-Based Access Control (RBAC)** for Admins and Users  
+
+> ⚠️ *Note: RDLab is currently in its MVP stage. Only the core features (document upload, embedding, and answering) are available. Limited time and the novelty of RAG technologies constrained development—other functionalities such as user feedback, improved UI, and multi-language support are still in progress.*
 
 ---
 
 ## 🧱 Tech Stack
 
-| Layer            | Tech Used                      |
+| Layer            | Technology                     |
 |------------------|--------------------------------|
-| **Frontend**     | React.js + Tailwind CSS        |
+| **Frontend**     | React.js, Tailwind CSS         |
 | **Backend**      | FastAPI (Python)               |
-| **Search Engine**| Elasticsearch                  |
+| **Search Engine**| FAISS                          |
+| **Vector Store** | Sentence Transformers + FAISS  |
 | **Database**     | PostgreSQL                     |
-| **Graph Storage**| Neo4j                          |
-| **NLP Models**   | DeepSeek, LangChain            |
-| **Security**     | JWT, RBAC, On-Premise Encryption |
+| **NLP Models**   | LangChain + Gemini API         |
+| **Security**     | JWT, RBAC, On-Premise Storage  |
 
 ---
 
 ## 🚀 Getting Started
 
-### 1. Clone the Repo
+### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/rdlab.git
+git clone https://github.com/ludmila-sahraoui/RDLab.git
 cd rdlab
+```
+### 2. Install Dependencies
+
+```bash
+# Backend
+cd backend
+pip install -r requirements.txt
+
+# Frontend
+cd ../frontend
+npm install
+
+```
+
+### 3. Run the Application
+
+```bash
+# Backend
+cd backend
+uvicorn rag_api:app --reload
+
+# Frontend
+cd ../frontend
+npm run dev
+
+```
