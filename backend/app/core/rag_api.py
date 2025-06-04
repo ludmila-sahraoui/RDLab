@@ -108,13 +108,21 @@ def ingest_file(file_path: str, category: str):
 # === Prompt Template ===
 def get_custom_prompt() -> PromptTemplate:
     return PromptTemplate.from_template("""
-        You are an expert assistant that STRICTLY answers ONLY based on the provided context.
+        You are an expert assistant providing answers based STRICTLY and ONLY on the provided context.
+
+        Your answer must be written in **Markdown format** to support readability, including:
+        - Bullet points
+        - Numbered lists (if needed)
+        - Bold or italic formatting
+        - Code blocks (if technical content)
+        - Headings (for structure)
+
         Follow these rules:
-        1. If the answer cannot be found in the context, say: "I don't have enough information from my knowledge base to answer that."
-        2. Do NOT use any external knowledge or make assumptions.
-        3. If the question is unrelated to the context, say: "This question is outside my knowledge scope."
-        4. Keep answers concise and directly supported by the context.
-        
+        1. **Only use the provided context to answer the question**.
+        2. **If the answer is not in the context**, say: "I don't have enough information from my knowledge base to answer that."
+        3. **If the question is unrelated**, say: "This question is outside my knowledge scope."
+        4. Be clear, concise, and well-structured.
+
         ------------------
         Context:
         {context}
@@ -122,8 +130,9 @@ def get_custom_prompt() -> PromptTemplate:
 
         Question: {question}
 
-        Expert Answer:
+        Expert Answer (in Markdown):
     """)
+
 
 # === Call Gemini API directly ===
 def query_gemini_model(context: str, question: str, api_key: str) -> str: 
@@ -135,11 +144,20 @@ def query_gemini_model(context: str, question: str, api_key: str) -> str:
 
     # More strict instruction template
     instruction = """You are an expert assistant that STRICTLY answers ONLY based on the provided context.
-    Follow these rules:
-    1. If the answer cannot be found word-for-word or directly inferred from the context, say: "I don't have enough information from my knowledge base to answer that."
-    2. Do NOT use any external knowledge or make assumptions beyond what's in the context.
-    3. If the question is unrelated to the context, say: "This question is outside my knowledge scope."
-    4. Keep answers concise and directly supported by the context."""
+                    Write your answers in **Markdown** for readability.
+
+                    Include:
+                    - Bullet points
+                    - Numbered steps (if useful)
+                    - Bold for key terms
+                    - Code blocks for code
+                    - Headings for structure
+
+                    Rules:
+                    1. Do not use external knowledge.
+                    2. Say "I don't have enough information..." if the answer is not in the context.
+                    3. Say "This question is outside my knowledge scope." if it's unrelated.
+                    4. Keep responses clean and well-structured."""
 
     data = {
         "contents": [
@@ -203,6 +221,7 @@ def create_qa_function(vectorstore_path: str, api_key: str):
 
     def qa_function(question: str):
         docs = retriever.get_relevant_documents(question)
+        print(docs)
         if not docs:
             return "I don't have enough information from my knowledge base to answer that."
         
@@ -262,6 +281,39 @@ def ask_endpoint(request: AskRequest):
         return {"answer": answer}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+from fastapi import UploadFile, File, Form, UploadFile, HTTPException
+from typing import List
+
+@app.post("/ingest")
+async def ingest_multiple_files_endpoint(
+    files: List[UploadFile] = File(...),
+    categories: List[str] = Form(...)
+):
+    try:
+        if len(files) != len(categories):
+            raise HTTPException(status_code=400, detail="Each file must have a matching category.")
+
+        temp_dir = os.path.join(BASE_DIR, "dataset")
+        os.makedirs(temp_dir, exist_ok=True)
+
+        for file, category in zip(files, categories):
+            file_path = os.path.join(temp_dir, file.filename)
+            with open(file_path, "wb") as f:
+                content = await file.read()
+                f.write(content)
+
+            # Process each file
+            ingest_file(file_path, category)
+
+        return {
+            "status": "success",
+            "message": f"{len(files)} files ingested successfully."
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Ingestion failed: {str(e)}")
+
 
 # === Run FastAPI server if script is executed directly ===
 if __name__ == "__main__":

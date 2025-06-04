@@ -108,53 +108,70 @@ const DropFileInput = ({ onFileChange }) => {
         }
     };
 
-    const handleUploadAll = async () => {
-        if (filesWithMetadata.length === 0 || filesWithMetadata.length !== fileList.length) return;
+const handleUploadAll = async () => {
+    if (filesWithMetadata.length === 0 || filesWithMetadata.length !== fileList.length) return;
 
-        setUploading(true);
-        
-        try {
-            for (const { file, metadata } of filesWithMetadata) {
-                const uploadFormData = new FormData();
-                uploadFormData.append('file', file);
-                uploadFormData.append('title', metadata.title || file.name);
-                uploadFormData.append('author', metadata.author || 'Unknown');
-                uploadFormData.append('category', metadata.category || 'General');
-                uploadFormData.append('documentPreview', '');
+    setUploading(true);
 
-                await axios.post(`${API_URL}/admin/upload`, uploadFormData, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data',
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    },
-                    onUploadProgress: (progressEvent) => {
-                        const percentCompleted = Math.round(
-                            (progressEvent.loaded * 100) / progressEvent.total
-                        );
-                        setUploadProgress(percentCompleted);
-                    }
-                });
-            }
-            setFileList([]);
-            setFilesWithMetadata([]);
-        } catch (error) {
-            console.error('Upload failed:', error);
-            let errorMessage = 'Upload failed';
-            
-            if (error.response) {
-                if (error.response.status === 403) {
-                    errorMessage = 'You need admin privileges to upload files';
-                } else {
-                    errorMessage = error.response.data.detail || errorMessage;
+    try {
+        for (const { file, metadata } of filesWithMetadata) {
+            const uploadFormData = new FormData();
+            uploadFormData.append('file', file);
+            uploadFormData.append('title', metadata.title || file.name);
+            uploadFormData.append('author', metadata.author || 'Unknown');
+            uploadFormData.append('category', metadata.category || 'General');
+            uploadFormData.append('documentPreview', '');
+
+            // Upload the file
+            const uploadResponse = await axios.post(`${API_URL}/admin/upload`, uploadFormData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                },
+                onUploadProgress: (progressEvent) => {
+                    const percentCompleted = Math.round(
+                        (progressEvent.loaded * 100) / progressEvent.total
+                    );
+                    setUploadProgress(percentCompleted);
                 }
+            });
+
+            const ingestFormData = new FormData();
+
+            for (const { file, metadata } of filesWithMetadata) {
+                ingestFormData.append('files', file); // 'files' is plural and matches the FastAPI parameter
+                ingestFormData.append('categories', metadata.category || 'General'); // same name
             }
-            
-            alert(errorMessage);
-        } finally {
-            setUploading(false);
-            setUploadProgress(0);
+
+            await axios.post(`http://localhost:8888/ingest`, ingestFormData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            });
         }
-    };
+
+        setFileList([]);
+        setFilesWithMetadata([]);
+    } catch (error) {
+        console.error('Upload or ingestion failed:', error);
+        let errorMessage = 'Upload or ingestion failed';
+
+        if (error.response) {
+            if (error.response.status === 403) {
+                errorMessage = 'You need admin privileges to upload files';
+            } else {
+                errorMessage = error.response.data.detail || errorMessage;
+            }
+        }
+
+        alert(errorMessage);
+    } finally {
+        setUploading(false);
+        setUploadProgress(0);
+    }
+};
+
 
     return (
         <>
@@ -256,6 +273,7 @@ const DropFileInput = ({ onFileChange }) => {
                                     <option value="General">General</option>
                                     <option value="Engineering">Engineering</option>
                                     <option value="Research">Research</option>
+                                    <option value="Security">Security</option>
                                 </select>
                             </div>
                         </div>

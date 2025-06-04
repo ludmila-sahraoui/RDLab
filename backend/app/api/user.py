@@ -80,3 +80,10 @@ def get_user_role_from_session(
     current_user: models.User = Depends(get_current_user_from_session)
 ):
     return {"role": current_user.role}
+
+@router.get("/profile/")
+def get_user_role_from_session(
+    current_user: models.User = Depends(get_current_user_from_session)
+):
+    return {"name": current_user.name,
+            "email": current_user.email}

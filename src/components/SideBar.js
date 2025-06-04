@@ -83,7 +83,7 @@ export default function Sidebar() {
   const menuItems = fullMenu.filter(item => {
     if (userRole === 'Admin') return true;
     if (userRole === 'Researcher') return !['Dashboard', 'Users', 'Roles'].includes(item.label);
-    if (userRole === 'User') return ['Chats', 'Settings', 'Logout'].includes(item.label);
+    if (userRole === 'Intern') return ['Chats', 'Settings', 'Logout'].includes(item.label);
     return false;
   });
 

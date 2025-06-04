@@ -8,14 +8,7 @@ import FilterBtn from '../components/FilterBtn';
 import DropdownMenuButton from '../components/DropDownBtn';
 
 const ManageUsersPage = () => {
-  const [users, setUsers] = useState([
-    { id: 1, name: "Olivia Bennett", email: "olivia.bennett@petrotechmail.com", role: "Engineer", status: "Logged In", avatar: "https://randomuser.me/api/portraits/women/1.jpg" },
-    { id: 2, name: "Ayesha Khan", email: "ayesha.k@drillstream.net", role: "Researcher", status: "Logged In", avatar: "https://randomuser.me/api/portraits/women/2.jpg" },
-    { id: 3, name: "Marcus Feldman", email: "mfeldman89@geoworks.io", role: "Intern", status: "Not Logged In", avatar: "https://randomuser.me/api/portraits/men/3.jpg" },
-    { id: 4, name: "Lucas McAllister", email: "lucas.mcallister@gitrack.org", role: "Intern", status: "Not Logged In", avatar: "https://randomuser.me/api/portraits/men/4.jpg" },
-    { id: 5, name: "Elena Zhang", email: "e.zhang@energygrid.tech", role: "Researcher", status: "Logged In", avatar: "https://randomuser.me/api/portraits/women/5.jpg" },
-    { id: 6, name: "Rafael Sousa", email: "rafael.s@pipeline360.co", role: "Engineer", status: "Not Logged In", avatar: "https://randomuser.me/api/portraits/men/6.jpg" },
-  ]);
+  const [users, setUsers] = useState([ ]);
   const [notifications, setNotifications] = useState([]);
   const [editingUser, setEditingUser] = useState(null);
   const [isEditModalOpen, setEditModalOpen] = useState(false);
